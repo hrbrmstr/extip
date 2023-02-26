@@ -24,40 +24,49 @@ func UseResolver(resolver string) *net.Resolver {
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := net.Dialer{Timeout: time.Millisecond * time.Duration(resolverTimeout)}
-			return d.DialContext(ctx, network, resolver+":"+defaultPort)
+			return d.DialContext(ctx, network, resolver + ":" + defaultPort)
 		},
 	}
 
 }
 
-func GoogleExtIP() string {
+func GoogleExtIP() ([]string, error) {
 
 	r := UseResolver(googleResolver)
-	txts, _ := r.LookupTXT(context.Background(), googleHost)
+	txts, err := r.LookupTXT(context.Background(), googleHost)
 
-	return txts[0]
+	return txts, err
 
 }
 
-func OpenDNSExtIP() string {
+func OpenDNSExtIP() ([]string, error) {
 
 	r := UseResolver(openDNSResolver)
-	ip, _ := r.LookupHost(context.Background(), openDNSHost)
+	ip, err := r.LookupHost(context.Background(), openDNSHost)
 
-	return ip[0]
+	return ip, err
 
 }
 
 func main() {
 
-	opendns := OpenDNSExtIP()
-	google := GoogleExtIP()
+  l := log.New(os.Stderr, "", 1)
 
-	if google == opendns {
-		fmt.Println(opendns)
+	opendns, oerr := OpenDNSExtIP()
+	google, gerr := GoogleExtIP()
+
+  if (oerr != nil) && (gerr != nil) {
+    l.Println("Neither DNS resolution worked.")
+		os.Exit(2)
+	} else if (oerr != nil) {
+		l.Println("OpenDNS resolver query failed.")
+		fmt.Println(google[0])
+	} else if (gerr != nil) {
+		l.Println("Google resolver query failed")
+		fmt.Println(opendns[0])
+	} else if google[0] == opendns[0] {
+		fmt.Println(opendns[0])
 	} else {
-
-		l := log.New(os.Stderr, "", 1)
 
 		l.Println("Google and OpenDNS have different ideas regarding your external IP address.")
 		l.Printf("Google thinks it is: %s\n", google)
