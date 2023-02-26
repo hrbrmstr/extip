@@ -5,7 +5,7 @@ Small Golang package/cli that uses a special DNS resolver to return your externa
 ## Build
 
 ```
-just build
+just build # requires https://github.com/casey/just
 ```
 
 ## Install

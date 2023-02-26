@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"time"
 )
@@ -23,5 +24,5 @@ func extip() string {
 }
 
 func main() {
-	println(extip())
+	fmt.Println(extip())
 }
