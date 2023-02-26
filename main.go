@@ -69,8 +69,8 @@ func main() {
 	} else {
 
 		l.Println("Google and OpenDNS have different ideas regarding your external IP address.")
-		l.Printf("Google thinks it is: %s\n", google)
-		l.Printf("OpenDNS thinks it is: %s\n", opendns)
+		l.Printf("Google thinks it is: %s\n", google[0])
+		l.Printf("OpenDNS thinks it is: %s\n", opendns[0])
 
 		os.Exit(1)
 
