@@ -13,5 +13,5 @@ just build # requires https://github.com/casey/just
 ## Install
 
 ```
-go install -ldflags "-s -w" github.com/hrbrmstr/extip
+go install -ldflags "-s -w" github.com/hrbrmstr/extip@latest
 ```
