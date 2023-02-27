@@ -2,7 +2,12 @@
 
 Small Golang package/cli that uses special DNS resolvers to return your external IP address.
 
-Presently it uses Google and OpenDNS. If there is a conflict between the resolver answers a message will be delivered on stderr with the conflicting values.
+Presently it uses Google, OpenDNS, and Akamai. If there is a conflict between the resolver answers a message will be delivered on stderr with the conflicting values.
+
+## References
+
+- [Bizarre and Unusual Uses of DNS](https://fosdem.org/2023/schedule/event/dns_bizarre_and_unusual_uses_of_dns/)
+- [Akamai blog](https://www.akamai.com/blog/developers/introducing-new-whoami-tool-dns-resolver-information)
 
 ## Build
 
