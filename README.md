@@ -24,4 +24,4 @@ go install -ldflags "-s -w" github.com/hrbrmstr/extip@latest
 ## TODO
 
 - [ ] Spruce up the CLI to allow folks to choose from the existing list vs use all of them
-- [ ] Allow folks to specify an endpoint and record type so it can be used with the companion server <https://github.com/hrbrmstr/extip>
+- [ ] Allow folks to specify an endpoint and record type so it can be used with the companion server <https://github.com/hrbrmstr/extip-svr>
