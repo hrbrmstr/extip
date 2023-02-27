@@ -11,16 +11,18 @@ import (
 	"time"
 )
 
-const resolverTimeout = 10000
-const defaultPort = "53"
+const(
+  resolverTimeout = 10000
+  defaultPort = "53"
 
-const googleResolver = "ns1.google.com"
-const openDNSResolver = "resolver1.opendns.com"
+  googleResolver = "ns1.google.com"
+  openDNSResolver = "resolver1.opendns.com"
 
-const googleHost = "o-o.myaddr.1.google.com"
-const openDNSHost = "myip.opendns.com"
-const akamaiHost = "whoami.ds.akahelp.net"
-const akamaiDomain = "akamai.com"
+ googleHost = "o-o.myaddr.1.google.com"
+ openDNSHost = "myip.opendns.com"
+ akamaiHost = "whoami.ds.akahelp.net"
+ akamaiDomain = "akamai.com"
+)
 
 // Test if all strings in a list are equal
 func AllEqual(a []string) bool {
