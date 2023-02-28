@@ -17,6 +17,10 @@ set shell := ["zsh", "-cu"]
 @fmt:
   go fmt
 
+# release binaries
+@release:
+  gh workflow run release-binaries.yml   
+	
 # Check results against dig. Requires dig.
 @test: build
   [ "$(dig myip.opendns.com @resolver1.opendns.com +short)" = "$(./extip)" ] && echo "Passed OpenDNS test"
