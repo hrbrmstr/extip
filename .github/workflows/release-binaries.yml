@@ -1,10 +1,11 @@
-# .github/workflows/release.yaml
+# .github/workflows/release-binaries.yaml
 
 on:
   release:
     branches: 
       - batman
-    types: [created]
+      - main
+    types: [created, published]
 
 jobs:
   releases-matrix:
