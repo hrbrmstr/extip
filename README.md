@@ -2,7 +2,9 @@
 
 Small Golang package/cli that uses special DNS resolvers to return your external IP address.
 
-Presently it uses Google, OpenDNS, and Akamai. If there is a conflict between the resolver answers a message will be delivered on stderr with the conflicting values.
+By default it uses Google, OpenDNS, and Akamai. If there is a conflict between the resolver answers a message will be delivered on stderr with the conflicting values.
+
+Alternatively, you can specify an [extip server](https://github.com/hrbrmstr/extip-svr) to use. See below for how to do that.
 
 ## References
 
@@ -21,7 +23,40 @@ just build # requires https://github.com/casey/just
 go install -ldflags "-s -w" github.com/hrbrmstr/extip@latest
 ```
 
-## TODO
+## Options
 
-- [ ] Spruce up the CLI to allow folks to choose from the existing list vs use all of them
-- [ ] Allow folks to specify an endpoint and record type so it can be used with the companion server <https://github.com/hrbrmstr/extip-svr>
+```
+Lookup external IP address via DNS.
+
+Defaults to using Akamai, OpenDNS, and Google services.
+You can specify an extip server via the following command line options.
+NOTE: Both server and domain should be specified to override default behavior.
+More info about running an extip server can be found at <https://github.com/hrbrmstr/extip-svr>.
+
+extip 0.2.0
+Usage: extip [--server EXTIP_SERVER] [--domain DOMAIN] [--record-type RECORD_TYPE] [--port PORT]
+
+Options:
+  --server EXTIP_SERVER, -s EXTIP_SERVER
+                         extip-svr IP/FQDN. e.g., ip.rudis.net [env: EXTIP_SERVER]
+  --domain DOMAIN, -d DOMAIN
+                         Domain to use for IP Lookup. e.g., myip.is [env: EXTIP_DOMAIN]
+  --record-type RECORD_TYPE, -r RECORD_TYPE
+                         DNS record type to lookup. One of TXT or A. [default: TXT, env: EXTIP_RECORD_TYPE]
+  --port PORT, -p PORT   Port extip resolver is listening on. [default: 53, env: EXTIP_PORT]
+  --help, -h             display this help and exit
+```
+
+## Usage
+
+Default:
+
+```
+extipsvr
+```
+
+Use an extip server:
+
+```
+extip -s ip.rudis.net -d ip.is
+```

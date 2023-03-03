@@ -7,13 +7,17 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/alexflint/go-arg"
 )
 
 const(
+	version = "0.2.0"
   resolverTimeout = 10000
-  defaultPort = "53"
+  defaultPort = 53
 
   googleResolver = "ns1.google.com"
   openDNSResolver = "resolver1.opendns.com"
@@ -44,13 +48,13 @@ func TrimSuffix(s, suffix string) string {
 }
 
 // Setup a specific resovler to use for DNS lookups
-func UseResolver(resolver string) *net.Resolver {
+func UseResolver(resolver string, port int) *net.Resolver {
 	
 	return &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 			d := net.Dialer{Timeout: time.Millisecond * time.Duration(resolverTimeout)}
-			return d.DialContext(ctx, network, resolver + ":" + defaultPort)
+			return d.DialContext(ctx, network, resolver + ":" + strconv.Itoa(port))
 		},
 	}
 	
@@ -82,7 +86,7 @@ func AkamaiExtIP() ([]string, error) {
 		return []string{""}, err
 	}
 
-	r := UseResolver(akamaiResolver)
+	r := UseResolver(akamaiResolver, defaultPort)
 	txts, err := r.LookupTXT(context.Background(), akamaiHost)
 
 	if (err != nil) {
@@ -98,7 +102,7 @@ func AkamaiExtIP() ([]string, error) {
 // Get our local, external IP via Google's hack
 func GoogleExtIP() ([]string, error) {
 	
-	r := UseResolver(googleResolver)
+	r := UseResolver(googleResolver, defaultPort)
 	txts, err := r.LookupTXT(context.Background(), googleHost)
 	
 	if (err != nil) {
@@ -112,7 +116,7 @@ func GoogleExtIP() ([]string, error) {
 // Get our local, external IP via OpenDNS's hack
 func OpenDNSExtIP() ([]string, error) {
 	
-	r := UseResolver(openDNSResolver)
+	r := UseResolver(openDNSResolver, defaultPort)
 	ips, err := r.LookupHost(context.Background(), openDNSHost)
 
 	if (err != nil) {
@@ -123,10 +127,63 @@ func OpenDNSExtIP() ([]string, error) {
 	
 }
 
+// Get our local, external IP via custom extip resolver
+func CustomExtIP(resolver string, host string, rectype string, port int) ([]string, error) {
+	
+	r := UseResolver(resolver, port)
+
+	var res [](string)
+	var err error
+
+	if (rectype == "A") {
+	  res, err = r.LookupHost(context.Background(), host)
+	} else {
+		res, err = r.LookupTXT(context.Background(), host)
+	}
+
+	if (err != nil) {
+		res = []string{""}
+	}
+
+	return res, err
+	
+}
+
+type args struct {
+	Server string `arg:"-s,--server,env:EXTIP_SERVER" help:"extip-svr IP/FQDN. e.g., ip.rudis.net" placeholder:"EXTIP_SERVER"`
+	Domain string `arg:"-d,--domain,env:EXTIP_DOMAIN" help:"Domain to use for IP Lookup. e.g., myip.is" placeholder:"DOMAIN"`
+	RecordType string `arg:"-r,--record-type,env:EXTIP_RECORD_TYPE" help:"DNS record type to lookup. One of TXT or A." placeholder:"RECORD_TYPE" default:"TXT"`
+	Port int    `arg:"-p,--port,env:EXTIP_PORT" help:"Port extip resolver is listening on." placeholder:"PORT" default:"53"`
+}
+
+func (args) Description() string {
+  return "Lookup external IP address via DNS.\n\nDefaults to using Akamai, OpenDNS, and Google services.\nYou can specify an extip server via the following command line options.\nNOTE: Both server and domain should be specified to override default behavior.\nMore info about running an extip server can be found at <https://github.com/hrbrmstr/extip-svr>.\n"
+}
+
+func (args) Version() string {
+	return "extip " + version
+}
+
 // TODO: Make this a proper CLI with cmdline options since we have 3 services
 func main() {
-	
+
 	l := log.New(os.Stderr, "", 1)
+
+	var args args
+
+  arg.MustParse(&args)
+
+  if args.Server != "" && args.Domain != "" {
+	  custom, cerr := CustomExtIP(args.Server, args.Domain, args.RecordType, args.Port)
+  	if (cerr != nil) {
+	  	l.Println("No DNS resolutions worked.")
+		  os.Exit(3)
+	  } else {
+			fmt.Println(custom[0])
+			os.Exit(0)
+		}
+
+	}
 	
 	opendns, oerr := OpenDNSExtIP()
 	google, gerr := GoogleExtIP()
