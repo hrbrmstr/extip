@@ -52,7 +52,7 @@ Options:
 Default:
 
 ```
-extipsvr
+extip
 ```
 
 Use an extip server:
